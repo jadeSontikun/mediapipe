@@ -68,6 +68,7 @@ objc_library(
     ],
     deps = [
         "//mediapipe/examples/ios/common:CommonMediaPipeAppLibrary",
+        "//mediapipe/graphs/edge_detection:mobile_calculators",
     ] + select({
         "//mediapipe:ios_i386": [],
         "//mediapipe:ios_x86_64": [],

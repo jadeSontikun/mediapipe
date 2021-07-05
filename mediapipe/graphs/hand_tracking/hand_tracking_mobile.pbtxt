@@ -35,6 +35,20 @@ node {
   output_stream: "throttled_input_video"
 }
 
+# Converts RGB images into luminance images, still stored in RGB format.
+node: {
+  calculator: "LuminanceCalculator"
+  input_stream: "throttled_input_video"
+  output_stream: "luma_video"
+}
+
+# Applies the Sobel filter to luminance images stored in RGB format.
+node: {
+  calculator: "SobelEdgesCalculator"
+  input_stream: "luma_video"
+  output_stream: "output_video"
+}
+
 # Detects/tracks hand landmarks.
 node {
   calculator: "HandLandmarkTrackingGpu"
@@ -49,13 +63,13 @@ node {
 
 # Subgraph that renders annotations and overlays them on top of the input
 # images (see hand_renderer_gpu.pbtxt).
-node {
-  calculator: "HandRendererSubgraph"
-  input_stream: "IMAGE:throttled_input_video"
-  input_stream: "DETECTIONS:palm_detections"
-  input_stream: "LANDMARKS:hand_landmarks"
-  input_stream: "HANDEDNESS:handedness"
-  input_stream: "NORM_RECTS:0:hand_rects_from_palm_detections"
-  input_stream: "NORM_RECTS:1:hand_rects_from_landmarks"
-  output_stream: "IMAGE:output_video"
-}
+# node {
+#   calculator: "HandRendererSubgraph"
+#   input_stream: "IMAGE:sobel_video"
+#   input_stream: "DETECTIONS:palm_detections"
+#   input_stream: "LANDMARKS:hand_landmarks"
+#   input_stream: "HANDEDNESS:handedness"
+#   input_stream: "NORM_RECTS:0:hand_rects_from_palm_detections"
+#   input_stream: "NORM_RECTS:1:hand_rects_from_landmarks"
+#   output_stream: "IMAGE:output_video"
+# }
