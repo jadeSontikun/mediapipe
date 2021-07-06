@@ -75,7 +75,7 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
   NSURL* graphURL = [bundle URLForResource:resource withExtension:@"binarypb"];
   NSData* data = [NSData dataWithContentsOfURL:graphURL options:0 error:&configLoadError];
   if (!data) {
-    NSLog(@"Failed to load MediaPipe graph config: %@", configLoadError);
+    // NSLog(@"Failed to load MediaPipe graph config: %@", configLoadError);
     return nil;
   }
 
@@ -108,7 +108,7 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
 
   [self.mediapipeGraph setSidePacket:(mediapipe::MakePacket<int>(kNumHands)) named:kNumHandsInputSidePacket];
   [self.mediapipeGraph addFrameOutputStream:kLandmarksOutputStream outputPacketType:MPPPacketTypeRaw];
-  NSLog(@"Start Graph");
+  // NSLog(@"Start Graph");
 }
 
 - (void)presentView
@@ -125,7 +125,7 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
   // The frame's native format is rotated with respect to the portrait orientation.
   self.cameraSource.orientation = AVCaptureVideoOrientationPortrait;
 
-  NSLog(@"prevent View");
+  // NSLog(@"prevent View");
 
   [self.cameraSource requestCameraAccessWithCompletionHandler:^void(BOOL granted) {
       if (granted) {
@@ -133,10 +133,10 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
         //          self.noCameraLabel.hidden = YES;
         //        });
 
-        NSLog(@"Granted camera access");
+        // NSLog(@"Granted camera access");
         [self startGraphAndCamera];
       } else {
-        NSLog(@"No camera acceess");
+        // NSLog(@"No camera acceess");
       }
   }];
 }
@@ -144,13 +144,13 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
 - (void)setCameraPosition:(AVCaptureDevicePosition)cameraPosition
 {
   self.cameraSource.cameraPosition = cameraPosition;
-  NSLog(@"set camera position");
+  // NSLog(@"set camera position");
 }
 
 - (void)setVideoMirrored:(BOOL)videoMirrored
 {
   self.cameraSource.videoMirrored = videoMirrored;
-  NSLog(@"set video mirrored");
+  // NSLog(@"set video mirrored");
 }
 
 - (void)startGraphAndCamera
@@ -158,14 +158,14 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
   // Start running self.mediapipeGraph.
   NSError* error;
   if (![self.mediapipeGraph startWithError:&error]) {
-    NSLog(@"Failed to start graph: %@", error);
+    // NSLog(@"Failed to start graph: %@", error);
   } else if (![self.mediapipeGraph waitUntilIdleWithError:&error]) {
-    NSLog(@"Failed to complete graph initial run: %@", error);
+    // NSLog(@"Failed to complete graph initial run: %@", error);
   }
 
   // Start fetching frames from the camera.
   dispatch_async(self.videoQueue, ^{ [self.cameraSource start]; });
-  NSLog(@"Start fetching frames from the camera.");
+  // NSLog(@"Start fetching frames from the camera.");
 }
 
 #pragma mark - MPPInputSourceDelegate methods
@@ -173,10 +173,10 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
 // Must be invoked on self.videoQueue.
 - (void)processVideoFrame:(CVPixelBufferRef)imageBuffer timestamp:(CMTime)timestamp fromSource:(MPPInputSource*)source
 {
-  NSLog(@"processVideoFrame.sendPixelBuffer");
+  // NSLog(@"processVideoFrame.sendPixelBuffer");
 
   if (source != self.cameraSource) {
-    NSLog(@"Unknown source: %@", source);
+    // NSLog(@"Unknown source: %@", source);
     return;
   }
 
@@ -185,7 +185,7 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
                             packetType:MPPPacketTypePixelBuffer
                              timestamp:[self.timestampConverter timestampForMediaTime:timestamp]];
 
-  NSLog(@"processVideoFrame.didProcessVideoFrame");
+  // NSLog(@"processVideoFrame.didProcessVideoFrame");
   dispatch_async(dispatch_get_main_queue(), ^{ [_delegate handTracker:self didProcessVideoFrame:imageBuffer withTimestamp:timestamp]; });
 }
 
@@ -202,27 +202,27 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
   //            CVPixelBufferRelease(pixelBuffer);
   //        });
   //    }
-  NSLog(@"mediapipeGraph.didOutputPixelBuffer", streamName.c_str());
+  // NSLog(@"mediapipeGraph.didOutputPixelBuffer", streamName.c_str());
   NSString* result = [NSString stringWithUTF8String:&streamName != nil ? streamName.c_str() : ""];
 
-  NSLog(@"didOutputPixelBuffer fromStream= %s", streamName.c_str());
+  // NSLog(@"didOutputPixelBuffer fromStream= %s", streamName.c_str());
   [_delegate handTracker:self didOutputPixelBuffer:pixelBuffer];
 }
 
 // Receives a raw packet from the MediaPipe graph. Invoked on a MediaPipe worker thread.
 - (void)mediapipeGraph:(MPPGraph*)graph didOutputPacket:(const ::mediapipe::Packet&)packet fromStream:(const std::string&)streamName
 {
-  NSLog(@"didOutputPacket fromStream= %s", streamName.c_str());
+  // NSLog(@"didOutputPacket fromStream= %s", streamName.c_str());
   if (streamName == kLandmarksOutputStream) {
     if (packet.IsEmpty()) {
-      NSLog(@"didOutputPacket packet EMPTY");
+      // NSLog(@"didOutputPacket packet EMPTY");
       return;
     }
     const auto& multiHandLandmarks = packet.Get<std::vector<::mediapipe::NormalizedLandmarkList>>();
     const auto& landmarks = multiHandLandmarks[0];
 
     //        for (int i = 0; i < landmarks.landmark_size(); ++i) {
-    //            NSLog(@"\tLandmark[%d]: (%f, %f, %f)", i, landmarks.landmark(i).x(),
+    //            // NSLog(@"\tLandmark[%d]: (%f, %f, %f)", i, landmarks.landmark(i).x(),
     //                  landmarks.landmark(i).y(), landmarks.landmark(i).z());
     //        }
     NSMutableArray<Landmark*>* result = [NSMutableArray array];
@@ -232,7 +232,7 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
       [result addObject:landmark];
     }
 
-    NSLog(@"didOutputPacket packet sending");
+    // NSLog(@"didOutputPacket packet sending");
     [_delegate handTracker:self didOutputLandmarks:result];
   }
 }
