@@ -186,7 +186,8 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
                              timestamp:[self.timestampConverter timestampForMediaTime:timestamp]];
 
   // NSLog(@"processVideoFrame.didProcessVideoFrame");
-  dispatch_async(dispatch_get_main_queue(), ^{ [_delegate handTracker:self didProcessVideoFrame:imageBuffer withTimestamp:timestamp]; });
+  // dispatch_async(dispatch_get_main_queue(), ^{ [_delegate handTracker:self didProcessVideoFrame:imageBuffer withTimestamp:timestamp]; });
+  [_delegate handTracker:self didProcessVideoFrame:imageBuffer];
 }
 
 #pragma mark - MPPGraphDelegate methods

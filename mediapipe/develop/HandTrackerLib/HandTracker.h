@@ -9,7 +9,7 @@
 @protocol TrackerDelegate <NSObject>
 - (void)handTracker: (HandTracker*)handTracker didOutputLandmarks: (NSArray<Landmark *> *)landmarks;
 - (void)handTracker: (HandTracker*)handTracker didOutputPixelBuffer: (CVPixelBufferRef)pixelBuffer;
-- (void)handTracker: (HandTracker*)handTracker didProcessVideoFrame: (CVPixelBufferRef)imageBuffer withTimestamp:(CMTime)timestamp;
+- (void)handTracker: (HandTracker*)handTracker didProcessVideoFrame: (CVPixelBufferRef)imageBuffer;
 @end
 
 @interface HandTracker : NSObject
