@@ -16,7 +16,7 @@
 - (instancetype)init;
 - (void)startGraph;
 - (void)presentView;
-- (void)setCameraPosition:(AVCaptureDevicePosition)cameraPosition;
+- (void)setFrontCamera:(BOOL)isFront;
 - (void)setVideoMirrored:(BOOL)videoMirrored;
 @property (weak, nonatomic) id <TrackerDelegate> delegate;
 @end

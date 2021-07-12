@@ -141,9 +141,13 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
   }];
 }
 
-- (void)setCameraPosition:(AVCaptureDevicePosition)cameraPosition
+- (void)setFrontCamera:(BOOL)isFront
 {
-  self.cameraSource.cameraPosition = cameraPosition;
+  if (isFront) {
+    self.cameraSource.cameraPosition = AVCaptureDevicePositionFront;
+  } else {
+    self.cameraSource.cameraPosition = AVCaptureDevicePositionBack;
+  }
   // NSLog(@"set camera position");
 }
 
@@ -213,10 +217,14 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
 // Receives a raw packet from the MediaPipe graph. Invoked on a MediaPipe worker thread.
 - (void)mediapipeGraph:(MPPGraph*)graph didOutputPacket:(const ::mediapipe::Packet&)packet fromStream:(const std::string&)streamName
 {
+
   // NSLog(@"didOutputPacket fromStream= %s", streamName.c_str());
   if (streamName == kLandmarksOutputStream) {
+    NSMutableArray<Landmark*>* result = [NSMutableArray array];
+
     if (packet.IsEmpty()) {
       // NSLog(@"didOutputPacket packet EMPTY");
+      [_delegate handTracker:self didOutputLandmarks:result];
       return;
     }
     const auto& multiHandLandmarks = packet.Get<std::vector<::mediapipe::NormalizedLandmarkList>>();
@@ -226,7 +234,6 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
     //            // NSLog(@"\tLandmark[%d]: (%f, %f, %f)", i, landmarks.landmark(i).x(),
     //                  landmarks.landmark(i).y(), landmarks.landmark(i).z());
     //        }
-    NSMutableArray<Landmark*>* result = [NSMutableArray array];
 
     for (int i = 0; i < landmarks.landmark_size(); ++i) {
       Landmark* landmark = [[Landmark alloc] initWithX:landmarks.landmark(i).x() y:landmarks.landmark(i).y() z:landmarks.landmark(i).z()];
