@@ -58,8 +58,10 @@ static const char* kVideoQueueLabel = "com.odds.mediapipe.videoQueue";
   self.mediapipeGraph.delegate = nil;
   [self.mediapipeGraph cancel];
   // Ignore errors since we're cleaning up.
-  [self.mediapipeGraph closeAllInputStreamsWithError:nil];
-  [self.mediapipeGraph waitUntilDoneWithError:nil];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.mediapipeGraph closeAllInputStreamsWithError:nil];
+    [self.mediapipeGraph waitUntilDoneWithError:nil];
+  });
 }
 
 #pragma mark - MediaPipe graph methods
